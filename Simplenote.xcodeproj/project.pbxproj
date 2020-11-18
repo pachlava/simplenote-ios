@@ -105,6 +105,7 @@
 		46A3C9C217DFA81A002865AE /* InfoPlist.strings in Resources */ = {isa = PBXBuildFile; fileRef = E29ADD4417848E8500E55842 /* InfoPlist.strings */; };
 		46A3C9C317DFA81A002865AE /* Images.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = E29ADD4D17848E8500E55842 /* Images.xcassets */; };
 		715D9F5D2564145000925869 /* SimplenoteUITests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 715D9F5C2564145000925869 /* SimplenoteUITests.swift */; };
+		715D9F7F2564810B00925869 /* UIDs.swift in Sources */ = {isa = PBXBuildFile; fileRef = 715D9F7E2564810B00925869 /* UIDs.swift */; };
 		74388F4422CFFA30001C5EC0 /* UIViewController+Helpers.swift in Sources */ = {isa = PBXBuildFile; fileRef = 74388F4322CFFA30001C5EC0 /* UIViewController+Helpers.swift */; };
 		74388F4622CFFA8B001C5EC0 /* NSObject+Helpers.swift in Sources */ = {isa = PBXBuildFile; fileRef = 74388F4522CFFA8B001C5EC0 /* NSObject+Helpers.swift */; };
 		74388F4722CFFAB6001C5EC0 /* UIViewController+Helpers.swift in Sources */ = {isa = PBXBuildFile; fileRef = 74388F4322CFFA30001C5EC0 /* UIViewController+Helpers.swift */; };
@@ -505,6 +506,7 @@
 		715D9F5A2564145000925869 /* SimplenoteUITests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = SimplenoteUITests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		715D9F5C2564145000925869 /* SimplenoteUITests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SimplenoteUITests.swift; sourceTree = "<group>"; };
 		715D9F5E2564145000925869 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
+		715D9F7E2564810B00925869 /* UIDs.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UIDs.swift; sourceTree = "<group>"; };
 		74388F4322CFFA30001C5EC0 /* UIViewController+Helpers.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = "UIViewController+Helpers.swift"; path = "Classes/UIViewController+Helpers.swift"; sourceTree = "<group>"; };
 		74388F4522CFFA8B001C5EC0 /* NSObject+Helpers.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "NSObject+Helpers.swift"; sourceTree = "<group>"; };
 		74388F4922CFFB8B001C5EC0 /* ShareViewController.xib */ = {isa = PBXFileReference; lastKnownFileType = file.xib; path = ShareViewController.xib; sourceTree = "<group>"; };
@@ -1068,6 +1070,7 @@
 			children = (
 				715D9F5C2564145000925869 /* SimplenoteUITests.swift */,
 				715D9F5E2564145000925869 /* Info.plist */,
+				715D9F7E2564810B00925869 /* UIDs.swift */,
 			);
 			path = SimplenoteUITests;
 			sourceTree = "<group>";
@@ -2536,6 +2539,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				715D9F7F2564810B00925869 /* UIDs.swift in Sources */,
 				715D9F5D2564145000925869 /* SimplenoteUITests.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
