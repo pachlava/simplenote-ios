@@ -107,6 +107,13 @@
 		715D9F5D2564145000925869 /* SimplenoteUITests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 715D9F5C2564145000925869 /* SimplenoteUITests.swift */; };
 		715D9F7F2564810B00925869 /* UIDs.swift in Sources */ = {isa = PBXBuildFile; fileRef = 715D9F7E2564810B00925869 /* UIDs.swift */; };
 		715D9FF22565D62700925869 /* XCTest+Extensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = 715D9FF12565D62700925869 /* XCTest+Extensions.swift */; };
+		716120D22566D71200972901 /* AllNotesClass.swift in Sources */ = {isa = PBXBuildFile; fileRef = 716120D12566D71200972901 /* AllNotesClass.swift */; };
+		716120DB256700E900972901 /* TrashClass.swift in Sources */ = {isa = PBXBuildFile; fileRef = 716120DA256700E900972901 /* TrashClass.swift */; };
+		716120E42567011F00972901 /* NoteEditorClass.swift in Sources */ = {isa = PBXBuildFile; fileRef = 716120E32567011F00972901 /* NoteEditorClass.swift */; };
+		716120ED2567017200972901 /* AssertGenericClass.swift in Sources */ = {isa = PBXBuildFile; fileRef = 716120EC2567017200972901 /* AssertGenericClass.swift */; };
+		716120F6256701A800972901 /* EmailLogin.swift in Sources */ = {isa = PBXBuildFile; fileRef = 716120F5256701A800972901 /* EmailLogin.swift */; };
+		716120FF2567020300972901 /* Playground.swift in Sources */ = {isa = PBXBuildFile; fileRef = 716120FE2567020300972901 /* Playground.swift */; };
+		7161210F2567052D00972901 /* Generic.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7161210E2567052D00972901 /* Generic.swift */; };
 		74388F4422CFFA30001C5EC0 /* UIViewController+Helpers.swift in Sources */ = {isa = PBXBuildFile; fileRef = 74388F4322CFFA30001C5EC0 /* UIViewController+Helpers.swift */; };
 		74388F4622CFFA8B001C5EC0 /* NSObject+Helpers.swift in Sources */ = {isa = PBXBuildFile; fileRef = 74388F4522CFFA8B001C5EC0 /* NSObject+Helpers.swift */; };
 		74388F4722CFFAB6001C5EC0 /* UIViewController+Helpers.swift in Sources */ = {isa = PBXBuildFile; fileRef = 74388F4322CFFA30001C5EC0 /* UIViewController+Helpers.swift */; };
@@ -509,6 +516,13 @@
 		715D9F5E2564145000925869 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		715D9F7E2564810B00925869 /* UIDs.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UIDs.swift; sourceTree = "<group>"; };
 		715D9FF12565D62700925869 /* XCTest+Extensions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "XCTest+Extensions.swift"; sourceTree = "<group>"; };
+		716120D12566D71200972901 /* AllNotesClass.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AllNotesClass.swift; sourceTree = "<group>"; };
+		716120DA256700E900972901 /* TrashClass.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TrashClass.swift; sourceTree = "<group>"; };
+		716120E32567011F00972901 /* NoteEditorClass.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NoteEditorClass.swift; sourceTree = "<group>"; };
+		716120EC2567017200972901 /* AssertGenericClass.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AssertGenericClass.swift; sourceTree = "<group>"; };
+		716120F5256701A800972901 /* EmailLogin.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EmailLogin.swift; sourceTree = "<group>"; };
+		716120FE2567020300972901 /* Playground.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Playground.swift; sourceTree = "<group>"; };
+		7161210E2567052D00972901 /* Generic.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Generic.swift; sourceTree = "<group>"; };
 		74388F4322CFFA30001C5EC0 /* UIViewController+Helpers.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = "UIViewController+Helpers.swift"; path = "Classes/UIViewController+Helpers.swift"; sourceTree = "<group>"; };
 		74388F4522CFFA8B001C5EC0 /* NSObject+Helpers.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "NSObject+Helpers.swift"; sourceTree = "<group>"; };
 		74388F4922CFFB8B001C5EC0 /* ShareViewController.xib */ = {isa = PBXFileReference; lastKnownFileType = file.xib; path = ShareViewController.xib; sourceTree = "<group>"; };
@@ -1070,10 +1084,17 @@
 		715D9F5B2564145000925869 /* SimplenoteUITests */ = {
 			isa = PBXGroup;
 			children = (
-				715D9F5C2564145000925869 /* SimplenoteUITests.swift */,
+				716120D12566D71200972901 /* AllNotesClass.swift */,
+				716120EC2567017200972901 /* AssertGenericClass.swift */,
+				716120F5256701A800972901 /* EmailLogin.swift */,
 				715D9F5E2564145000925869 /* Info.plist */,
+				716120E32567011F00972901 /* NoteEditorClass.swift */,
+				715D9F5C2564145000925869 /* SimplenoteUITests.swift */,
+				716120DA256700E900972901 /* TrashClass.swift */,
 				715D9F7E2564810B00925869 /* UIDs.swift */,
 				715D9FF12565D62700925869 /* XCTest+Extensions.swift */,
+				716120FE2567020300972901 /* Playground.swift */,
+				7161210E2567052D00972901 /* Generic.swift */,
 			);
 			path = SimplenoteUITests;
 			sourceTree = "<group>";
@@ -2543,7 +2564,14 @@
 			buildActionMask = 2147483647;
 			files = (
 				715D9F7F2564810B00925869 /* UIDs.swift in Sources */,
+				716120E42567011F00972901 /* NoteEditorClass.swift in Sources */,
+				716120FF2567020300972901 /* Playground.swift in Sources */,
 				715D9F5D2564145000925869 /* SimplenoteUITests.swift in Sources */,
+				716120D22566D71200972901 /* AllNotesClass.swift in Sources */,
+				7161210F2567052D00972901 /* Generic.swift in Sources */,
+				716120F6256701A800972901 /* EmailLogin.swift in Sources */,
+				716120ED2567017200972901 /* AssertGenericClass.swift in Sources */,
+				716120DB256700E900972901 /* TrashClass.swift in Sources */,
 				715D9FF22565D62700925869 /* XCTest+Extensions.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;

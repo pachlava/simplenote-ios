@@ -1,10 +1,12 @@
 //
-//  SimplenoteUITests.swift
+//  SimplenoteUITestsswift
 //  SimplenoteUITests
 //
 //  Created by Sergiy Fedosov on 12.11.2020.
 //  Copyright © 2020 Automattic. All rights reserved.
 //
+
+import XCTest
 
 let app = XCUIApplication()
 
@@ -15,8 +17,6 @@ let testDataExistingEmail = "xcuitest@test.com"
 let testDataInvalidPassword = "ABC"
 let testDataNotExistingPassword = "ABCD"
 let testDataExistingPassword = "swqazxcde"
-
-import XCTest
 
 class SimplenoteUISmokeTestsLogin: XCTestCase {
 
@@ -82,14 +82,14 @@ class SimplenoteUISmokeTestsLogin: XCTestCase {
     func testLogInWithCorrectCredentials() throws {
         EmailLogin.open()
         EmailLogin.logIn(email: testDataExistingEmail, password: testDataExistingPassword)
-        Assert.allNotesScreenShown()
+        AllNotesAssert.screenShown()
     }
 
     func testLogOut() throws {
         // Step 1
         EmailLogin.open()
         EmailLogin.logIn(email: testDataExistingEmail, password: testDataExistingPassword)
-        Assert.allNotesScreenShown()
+        AllNotesAssert.screenShown()
 
         // Step 2
         _ = logOut()
@@ -127,12 +127,12 @@ class SimplenoteUISmokeTestsNoteEditor: XCTestCase {
         // Put teardown code here. This method is called after the invocation of each test method in the class.
     }
 
-    func testNoteEditorCanPreviewMarkdownBySwiping() throws {
+    func testCanPreviewMarkdownBySwiping() throws {
         let editorText = "[Simplenote](https://simplenote.com/)"
         let previewText = "Simplenote"
 
         // Step 1
-        AllNotes.addNote()
+        AllNotes.addNoteTap()
         NoteEditorAssert.editorShown();
 
         // Step 2
@@ -146,12 +146,12 @@ class SimplenoteUISmokeTestsNoteEditor: XCTestCase {
         NoteEditorAssert.previewText(text: previewText)
     }
 
-    func testNoteEditorCanFlipToEditMode() throws {
+    func testCanFlipToEditMode() throws {
         let editorText = "[Simplenote](https://simplenote.com/)"
         let previewText = "Simplenote"
 
         // Step 1
-        AllNotes.addNote()
+        AllNotes.addNoteTap()
         NoteEditorAssert.editorShown();
 
         // Step 2
@@ -170,11 +170,11 @@ class SimplenoteUISmokeTestsNoteEditor: XCTestCase {
         NoteEditorAssert.editorText(text: editorText)
     }
 
-    func testNoteEditorUndoUndoesTheLastEdit() throws {
+    func testUndoUndoesTheLastEdit() throws {
         let editorText = "ABCD"
 
         // Step 1
-        AllNotes.addNote()
+        AllNotes.addNoteTap()
         NoteEditorAssert.editorShown();
 
         // Step 2
@@ -187,193 +187,218 @@ class SimplenoteUISmokeTestsNoteEditor: XCTestCase {
     }
 }
 
-class NoteEditor {
+class SimplenoteUISmokeTestsTrash: XCTestCase {
 
-    class func clearText() {
-        app.textViews.element.clearAndEnterText(text: "")
+    override func setUpWithError() throws {
+        app.launchArguments = ["enable-testing"]
+        continueAfterFailure = true
+
+        app.launch()
+        let logoutResult = attemptLogOut()
+        print("App logout: " + String(logoutResult))
+        app.launch()
+
+        EmailLogin.open()
+        EmailLogin.logIn(email: testDataExistingEmail, password: testDataExistingPassword)
+
+        AllNotes.waitForLoad()
+        AllNotes.createNoteAndLeaveEditor(noteName: "temp")
+        AllNotes.clearAllNotes()
+        Trash.empty()
     }
 
-    class func clearAndEnterText(enteredValue: String) {
-        app.textViews.element.clearAndEnterText(text: enteredValue)
+    override func tearDownWithError() throws {
+        // Put teardown code here. This method is called after the invocation of each test method in the class.
     }
 
-    class func getEditorText() -> String {
-        return app.textViews.element.value as! String
+    func testCanViewTrashedNotes() throws {
+        let noteOneName = "CanView"
+        let noteTwoName = "Trashed"
+        let noteThreeName = "Notes"
+
+        // Step 1
+        Trash.open()
+        TrashAssert.notesNumber(expectedNotesNumber: 0)
+
+        // Step 2
+        AllNotes.open()
+        AllNotes.createNoteAndLeaveEditor(noteName: noteOneName)
+        AllNotes.createNoteAndLeaveEditor(noteName: noteTwoName)
+        AllNotes.createNoteAndLeaveEditor(noteName: noteThreeName)
+        AllNotesAssert.noteExists(noteName: noteOneName)
+        AllNotesAssert.noteExists(noteName: noteTwoName)
+        AllNotesAssert.noteExists(noteName: noteThreeName)
+        AllNotesAssert.notesNumber(expectedNotesNumber: 3)
+
+        // Step 3
+        AllNotes.trashNote(noteName: noteOneName)
+        AllNotesAssert.noteAbsent(noteName: noteOneName)
+        AllNotesAssert.noteExists(noteName: noteTwoName)
+        AllNotesAssert.noteExists(noteName: noteThreeName)
+        AllNotesAssert.notesNumber(expectedNotesNumber: 2)
+
+        //Step 4
+        Trash.open()
+        TrashAssert.noteExists(noteName: noteOneName)
+        TrashAssert.notesNumber(expectedNotesNumber: 1)
     }
 
-    class func undo() {
-        app.textViews.element.tap(withNumberOfTaps: 2, numberOfTouches: 3)
-        app.otherElements["UIUndoInteractiveHUD"].children(matching: .other).element(boundBy: 1).children(matching: .other).element(boundBy: 1).tap()
+    func testCanDeleteNoteForeverIndividually() throws {
+        let noteOneName = "CanDelete"
+        let noteTwoName = "Note"
+        let noteThreeName = "Forever"
+
+        // Step 1
+        Trash.open()
+        TrashAssert.notesNumber(expectedNotesNumber: 0)
+
+        // Step 2
+        AllNotes.open()
+        AllNotes.createNoteAndLeaveEditor(noteName: noteOneName)
+        AllNotes.createNoteAndLeaveEditor(noteName: noteTwoName)
+        AllNotes.createNoteAndLeaveEditor(noteName: noteThreeName)
+        AllNotesAssert.noteExists(noteName: noteOneName)
+        AllNotesAssert.noteExists(noteName: noteTwoName)
+        AllNotesAssert.noteExists(noteName: noteThreeName)
+        AllNotesAssert.notesNumber(expectedNotesNumber: 3)
+
+        // Step 3
+        AllNotes.trashNote(noteName: noteOneName)
+        AllNotes.trashNote(noteName: noteTwoName)
+        AllNotesAssert.noteAbsent(noteName: noteOneName)
+        AllNotesAssert.noteAbsent(noteName: noteTwoName)
+        AllNotesAssert.noteExists(noteName: noteThreeName)
+        AllNotesAssert.notesNumber(expectedNotesNumber: 1)
+
+        //Step 4
+        Trash.open()
+        TrashAssert.noteExists(noteName: noteOneName)
+        TrashAssert.noteExists(noteName: noteTwoName)
+        TrashAssert.notesNumber(expectedNotesNumber: 2)
+
+        //Step 5
+        Trash.deleteNote(noteName: noteOneName)
+        TrashAssert.noteAbsent(noteName: noteOneName)
+        TrashAssert.noteExists(noteName: noteTwoName)
+        TrashAssert.notesNumber(expectedNotesNumber: 1)
+
+        // Step 6
+        AllNotes.open()
+        AllNotesAssert.noteAbsent(noteName: noteOneName)
+        AllNotesAssert.noteAbsent(noteName: noteTwoName)
+        AllNotesAssert.noteExists(noteName: noteThreeName)
+        AllNotesAssert.notesNumber(expectedNotesNumber: 1)
     }
 
-    class func swipeToPreview() {
-        app.textViews.element.swipeLeft()
+    func testCanDeleteNotesForeverViaEmpty() throws {
+        let noteOneName = "CanDelete"
+        let noteTwoName = "Note"
+        let noteThreeName = "Forever"
+
+        // Step 1
+        Trash.open()
+        TrashAssert.notesNumber(expectedNotesNumber: 0)
+
+        // Step 2
+        AllNotes.open()
+        AllNotes.createNoteAndLeaveEditor(noteName: noteOneName)
+        AllNotes.createNoteAndLeaveEditor(noteName: noteTwoName)
+        AllNotes.createNoteAndLeaveEditor(noteName: noteThreeName)
+        AllNotesAssert.noteExists(noteName: noteOneName)
+        AllNotesAssert.noteExists(noteName: noteTwoName)
+        AllNotesAssert.noteExists(noteName: noteThreeName)
+        AllNotesAssert.notesNumber(expectedNotesNumber: 3)
+
+        // Step 3
+        AllNotes.trashNote(noteName: noteOneName)
+        AllNotes.trashNote(noteName: noteTwoName)
+        AllNotesAssert.noteAbsent(noteName: noteOneName)
+        AllNotesAssert.noteAbsent(noteName: noteTwoName)
+        AllNotesAssert.noteExists(noteName: noteThreeName)
+        AllNotesAssert.notesNumber(expectedNotesNumber: 1)
+
+        //Step 4
+        Trash.open()
+        TrashAssert.noteExists(noteName: noteOneName)
+        TrashAssert.noteExists(noteName: noteTwoName)
+        TrashAssert.notesNumber(expectedNotesNumber: 2)
+
+        //Step 5
+        Trash.empty()
+        TrashAssert.notesNumber(expectedNotesNumber: 0)
+
+        // Step 6
+        AllNotes.open()
+        AllNotesAssert.noteAbsent(noteName: noteOneName)
+        AllNotesAssert.noteAbsent(noteName: noteTwoName)
+        AllNotesAssert.noteExists(noteName: noteThreeName)
+        AllNotesAssert.notesNumber(expectedNotesNumber: 1)
     }
 
-    class func getPreviewText() -> String {
-        return app.webViews.descendants(matching: .staticText).element.value as! String
+    func testCanRestoreNote() throws {
+        let noteOneName = "CanRestore"
+        let noteTwoName = "Trashed"
+        let noteThreeName = "Notes"
+
+        // Step 1
+        Trash.open()
+        TrashAssert.notesNumber(expectedNotesNumber: 0)
+
+        // Step 2
+        AllNotes.open()
+        AllNotes.createNoteAndLeaveEditor(noteName: noteOneName)
+        AllNotes.createNoteAndLeaveEditor(noteName: noteTwoName)
+        AllNotes.createNoteAndLeaveEditor(noteName: noteThreeName)
+        AllNotesAssert.noteExists(noteName: noteOneName)
+        AllNotesAssert.noteExists(noteName: noteTwoName)
+        AllNotesAssert.noteExists(noteName: noteThreeName)
+        AllNotesAssert.notesNumber(expectedNotesNumber: 3)
+
+        // Step 3
+        AllNotes.trashNote(noteName: noteOneName)
+        AllNotesAssert.noteAbsent(noteName: noteOneName)
+        AllNotesAssert.noteExists(noteName: noteTwoName)
+        AllNotesAssert.noteExists(noteName: noteThreeName)
+        AllNotesAssert.notesNumber(expectedNotesNumber: 2)
+
+        //Step 4
+        Trash.open()
+        TrashAssert.noteExists(noteName: noteOneName)
+        TrashAssert.notesNumber(expectedNotesNumber: 1)
+
+        //Step 5
+        Trash.restoreNote(noteName: noteOneName)
+        TrashAssert.notesNumber(expectedNotesNumber: 0)
+
+        //Step 6
+        AllNotes.open()
+        AllNotesAssert.noteExists(noteName: noteOneName)
+        AllNotesAssert.noteExists(noteName: noteTwoName)
+        AllNotesAssert.noteExists(noteName: noteThreeName)
+        AllNotesAssert.notesNumber(expectedNotesNumber: 3)
     }
 
-    class func leavePreviewViaBackButton() {
-        app.navigationBars[uidNavBar_NoteEditor_Preview].buttons[uidButton_Back].tap()
-    }
+    func testCanTrashNote() throws {
+        let noteName = "can trash note"
 
-    class func toggleMarkdownState() {
-        app.navigationBars[uidNavBar_AllNotes].buttons[uidButton_NoteEditor_Menu].tap()
-        app.tables.staticTexts[uidText_NoteEditor_Options_Markdown].tap()
-        app.navigationBars[uidNavBar_NoteEditor_Options].buttons[uidButton_Done].tap()
-    }
+        // Step 1
+        Trash.open()
+        TrashAssert.notesNumber(expectedNotesNumber: 0)
 
-    class func markdownEnable() {
-        swipeToPreview()
+        // Step 2
+        AllNotes.open()
+        AllNotes.createNoteAndLeaveEditor(noteName: noteName)
+        AllNotesAssert.noteExists(noteName: noteName)
+        AllNotesAssert.notesNumber(expectedNotesNumber: 1)
 
-        if app.navigationBars[uidNavBar_NoteEditor_Preview].exists {
-            leavePreviewViaBackButton()
-        } else {
-            toggleMarkdownState()
-        }
-    }
+        // Step 3
+        AllNotes.trashNote(noteName: noteName)
+        AllNotesAssert.noteAbsent(noteName: noteName)
+        AllNotesAssert.notesNumber(expectedNotesNumber: 0)
 
-    class func markdownDisable() {
-        swipeToPreview()
-
-        if app.navigationBars[uidNavBar_NoteEditor_Preview].exists {
-            leavePreviewViaBackButton()
-            toggleMarkdownState()
-        }
-    }
-}
-
-class AllNotes {
-
-    class func addNote() {
-        app.navigationBars[uidNavBar_AllNotes].buttons[uidButton_NewNote].tap()
-    }
-}
-
-class EmailLogin {
-
-    class func open() {
-        app.buttons[uidButton_LogIn].tap()
-        app.buttons[uidButton_LogInWithEmail].tap()
-    }
-
-    class func logIn(email: String, password: String) {
-        enterEmail(enteredValue: email)
-        enterPassword(enteredValue: password)
-        app.buttons[uidButton_LogIn].tap()
-    }
-
-    class func enterEmail(enteredValue: String) {
-        let field = app.textFields[uidTextField_Email]
-        field.tap()
-        field.typeText(enteredValue)
-    }
-
-    class func enterPassword(enteredValue: String) {
-        let field = app.secureTextFields[uidTextField_Password]
-        field.tap()
-        field.typeText(enteredValue)
-    }
-}
-
-func attemptLogOut() -> Bool {
-    let allNotesNavBar = app.navigationBars[uidNavBar_AllNotes]
-    var loggedOut: Bool = false
-
-    if allNotesNavBar.exists {
-        loggedOut = logOut()
-    } else {
-        loggedOut = true
-    }
-
-    return loggedOut
-}
-
-func logOut() -> Bool {
-    app.navigationBars[uidNavBar_AllNotes].buttons[uidButton_Menu].tap()
-    app.tables.cells[uidCell_Settings].tap()
-    app.tables.staticTexts[uidButton_LogOut].tap()
-    return app.buttons[uidButton_LogIn].waitForExistence(timeout: maxLoadTimeout)
-}
-
-// Assertions related goes here
-let notExpectedEnding = " is NOT as expected"
-let notFoundEnding = " NOT found"
-let notAbsentEnding = " NOT absent"
-let buttonNotFound = " button" + notFoundEnding
-let labelNotFound = " label" + notFoundEnding
-let labelNotAbsent = " label" + notAbsentEnding
-let alertHeadingNotFound = " alert heading" + notFoundEnding
-let alertContentNotFound = " alert content" + notFoundEnding
-let alertButtonNotFound = " alert button" + notFoundEnding
-let navBarNotFound = " navigation bar" + notFoundEnding
-let imageNotFound = " image" + notFoundEnding
-let maxLoadTimeout = 20.0
-let minLoadTimeout = 1.0
-
-class NoteEditorAssert {
-
-    class func editorShown() {
-        let allNotesNavBar = app.navigationBars[uidNavBar_AllNotes]
-
-        XCTAssertTrue(allNotesNavBar.waitForExistence(timeout: minLoadTimeout), uidNavBar_AllNotes + navBarNotFound)
-        XCTAssertTrue(allNotesNavBar.buttons[uidButton_NoteEditor_AllNotes].waitForExistence(timeout: minLoadTimeout), uidButton_NoteEditor_AllNotes + buttonNotFound)
-        XCTAssertTrue(allNotesNavBar.buttons[uidButton_NoteEditor_Checklist].waitForExistence(timeout: minLoadTimeout), uidButton_NoteEditor_Checklist + buttonNotFound)
-        XCTAssertTrue(allNotesNavBar.buttons[uidButton_NoteEditor_Information].waitForExistence(timeout: minLoadTimeout), uidButton_NoteEditor_Information + buttonNotFound)
-        XCTAssertTrue(allNotesNavBar.buttons[uidButton_NoteEditor_Menu].waitForExistence(timeout: minLoadTimeout), uidButton_NoteEditor_Menu + buttonNotFound)
-    }
-
-    class func previewShown() {
-        let previewNavBar = app.navigationBars[uidNavBar_NoteEditor_Preview]
-
-        XCTAssertTrue(previewNavBar.waitForExistence(timeout: minLoadTimeout), uidNavBar_NoteEditor_Preview + navBarNotFound)
-        XCTAssertTrue(previewNavBar.buttons[uidButton_Back].waitForExistence(timeout: minLoadTimeout), uidButton_Back + buttonNotFound)
-        XCTAssertTrue(previewNavBar.staticTexts[uidText_NoteEditor_Preview].waitForExistence(timeout: minLoadTimeout), uidText_NoteEditor_Preview + labelNotFound)
-    }
-
-    class func editorText(text: String) {
-        XCTAssertEqual(text, NoteEditor.getEditorText(), "Note Editor text" + notExpectedEnding);
-    }
-
-    class func previewText(text: String) {
-        XCTAssertEqual(text, NoteEditor.getPreviewText(), "Preview text" + notExpectedEnding);
-    }
-}
-
-class Assert {
-
-    class func labelExists(labelText: String) {
-        XCTAssertTrue(app.staticTexts[labelText].waitForExistence(timeout: minLoadTimeout), labelText + labelNotFound)
-    }
-
-    class func labelAbsent(labelText: String) {
-        XCTAssertFalse(app.staticTexts[labelText].waitForExistence(timeout: minLoadTimeout), labelText + labelNotAbsent)
-    }
-
-    class func alertExistsAndClose(headingText: String, content: String, buttonText: String) {
-        let alert = app.alerts[headingText]
-        let alertHeadingExists = alert.waitForExistence(timeout: maxLoadTimeout)
-
-        XCTAssertTrue(alertHeadingExists, headingText + alertHeadingNotFound)
-
-        if alertHeadingExists {
-            XCTAssertTrue(alert.staticTexts[content].waitForExistence(timeout: minLoadTimeout), content + alertContentNotFound)
-            XCTAssertTrue(alert.buttons[buttonText].waitForExistence(timeout: minLoadTimeout), buttonText + alertButtonNotFound)
-        }
-
-        alert.buttons[buttonText].tap()
-    }
-
-    class func allNotesScreenShown() {
-        XCTAssertTrue(app.navigationBars[uidNavBar_AllNotes].waitForExistence(timeout: maxLoadTimeout), uidNavBar_AllNotes + navBarNotFound)
-    }
-
-    class func signUpLogInScreenShown() {
-        XCTAssertTrue(app.images[uidPicture_AppLogo].waitForExistence(timeout: minLoadTimeout), uidPicture_AppLogo + imageNotFound)
-        XCTAssertTrue(app.staticTexts[textAppName].waitForExistence(timeout: minLoadTimeout), textAppName + labelNotFound)
-        XCTAssertTrue(app.staticTexts[textAppTagline].waitForExistence(timeout: minLoadTimeout), textAppTagline + labelNotFound)
-        XCTAssertTrue(app.buttons[uidButton_SignUp].waitForExistence(timeout: minLoadTimeout), uidButton_SignUp + buttonNotFound)
-        XCTAssertTrue(app.buttons[uidButton_LogIn].waitForExistence(timeout: minLoadTimeout), uidButton_LogIn + buttonNotFound)
+        //Step 4
+        Trash.open()
+        TrashAssert.noteExists(noteName: noteName)
+        TrashAssert.notesNumber(expectedNotesNumber: 1)
     }
 }
