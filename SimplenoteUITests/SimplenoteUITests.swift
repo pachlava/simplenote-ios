@@ -22,7 +22,7 @@ class SimplenoteUISmokeTestsLogin: XCTestCase {
 
     override func setUpWithError() throws {
         app.launchArguments = ["enable-testing"]
-        continueAfterFailure = false
+        continueAfterFailure = true
         app.launch()
         let logoutResult = attemptLogOut()
         print("App logout: " + String(logoutResult))
