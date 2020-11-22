@@ -10,6 +10,10 @@ import XCTest
 
 class AllNotes {
 
+    class func openNote(noteName: String) {
+        app.tables.cells[noteName].tap()
+    }
+    
     class func isOpen() -> Bool {
         return app.navigationBars[uidNavBar_AllNotes].exists
     }
@@ -63,8 +67,10 @@ class AllNotes {
     class func waitForLoad() {
         let allNotesNavBar = app.navigationBars[uidNavBar_AllNotes]
 
+        sleep(5)
+
         while allNotesNavBar.staticTexts[uidText_AllNotes_InProgress].exists {
-  
+
         }
     }
 }

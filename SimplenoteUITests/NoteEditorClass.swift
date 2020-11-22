@@ -31,14 +31,6 @@ class NoteEditor {
         app.textViews.element.swipeLeft()
     }
 
-    class func getPreviewText() -> String {
-        return app.webViews.descendants(matching: .staticText).element.value as! String
-    }
-
-    class func leavePreviewViaBackButton() {
-        app.navigationBars[uidNavBar_NoteEditor_Preview].buttons[uidButton_Back].tap()
-    }
-
     class func leaveEditor() {
         app.navigationBars[uidNavBar_AllNotes].buttons[uidButton_NoteEditor_AllNotes].tap()
     }
@@ -53,7 +45,7 @@ class NoteEditor {
         swipeToPreview()
 
         if app.navigationBars[uidNavBar_NoteEditor_Preview].exists {
-            leavePreviewViaBackButton()
+            Preview.leavePreviewViaBackButton()
         } else {
             toggleMarkdownState()
         }
@@ -63,13 +55,25 @@ class NoteEditor {
         swipeToPreview()
 
         if app.navigationBars[uidNavBar_NoteEditor_Preview].exists {
-            leavePreviewViaBackButton()
+            Preview.leavePreviewViaBackButton()
             toggleMarkdownState()
         }
+    }
+
+    class func pressLink(containerText: String, linkifiedText: String) {
+        // Should be replaced with proper way to determine if page is loaded
+        app.textViews[containerText].links[linkifiedText].press(forDuration: 1.3)
+        sleep(4)
     }
 }
 
 class NoteEditorAssert {
+
+    class func linkifiedURL(containerText: String, linkifiedText: String) {
+        let linkContainer = app.textViews[containerText]
+        XCTAssertTrue(linkContainer.exists, "\"" + containerText + linkContainerNotFoundInEditor)
+        XCTAssertTrue(linkContainer.links[linkifiedText].exists, "\"" + linkifiedText + linkNotFoundInEditor)
+    }
 
     class func editorShown() {
         let allNotesNavBar = app.navigationBars[uidNavBar_AllNotes]
@@ -81,19 +85,7 @@ class NoteEditorAssert {
         XCTAssertTrue(allNotesNavBar.buttons[uidButton_NoteEditor_Menu].waitForExistence(timeout: minLoadTimeout), uidButton_NoteEditor_Menu + buttonNotFound)
     }
 
-    class func previewShown() {
-        let previewNavBar = app.navigationBars[uidNavBar_NoteEditor_Preview]
-
-        XCTAssertTrue(previewNavBar.waitForExistence(timeout: minLoadTimeout), uidNavBar_NoteEditor_Preview + navBarNotFound)
-        XCTAssertTrue(previewNavBar.buttons[uidButton_Back].waitForExistence(timeout: minLoadTimeout), uidButton_Back + buttonNotFound)
-        XCTAssertTrue(previewNavBar.staticTexts[uidText_NoteEditor_Preview].waitForExistence(timeout: minLoadTimeout), uidText_NoteEditor_Preview + labelNotFound)
-    }
-
     class func editorText(text: String) {
         XCTAssertEqual(text, NoteEditor.getEditorText(), "Note Editor text" + notExpectedEnding);
-    }
-
-    class func previewText(text: String) {
-        XCTAssertEqual(text, NoteEditor.getPreviewText(), "Preview text" + notExpectedEnding);
     }
 }

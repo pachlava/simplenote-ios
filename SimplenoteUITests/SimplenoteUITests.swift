@@ -10,23 +10,21 @@ import XCTest
 
 let app = XCUIApplication()
 
-// Test data for email login tests
-let testDataInvalidEmail = "user@gmail."
-let testDataNotExistingEmail = "nevergonnagiveyouup@gmail.com"
 let testDataExistingEmail = "xcuitest@test.com"
-let testDataInvalidPassword = "ABC"
-let testDataNotExistingPassword = "ABCD"
 let testDataExistingPassword = "swqazxcde"
 
 class SimplenoteUISmokeTestsLogin: XCTestCase {
 
+    let testDataInvalidEmail = "user@gmail."
+    let testDataNotExistingEmail = "nevergonnagiveyouup@gmail.com"
+    let testDataInvalidPassword = "ABC"
+    let testDataNotExistingPassword = "ABCD"
+
     override func setUpWithError() throws {
         app.launchArguments = ["enable-testing"]
-        continueAfterFailure = true
+        continueAfterFailure = false
         app.launch()
-        let logoutResult = attemptLogOut()
-        print("App logout: " + String(logoutResult))
-        app.launch()
+        let _ = attemptLogOut()
     }
 
     override func tearDownWithError() throws {
@@ -110,17 +108,28 @@ class SimplenoteUISmokeTestsLogin: XCTestCase {
 
 class SimplenoteUISmokeTestsNoteEditor: XCTestCase {
 
+    let usualLinkText = "https://simplenote.com/"
+    let complexLinkPreviewText = "Simplenote"
+    let complexLinkRawText = "[Simplenote](https://simplenote.com/)"
+    let webViewTexts = [String](
+        arrayLiteral: "Simplenote",
+        "The simplest way to keep notes",
+        "All your notes, synced on all your devices. Get Simplenote now for iOS, Android, Mac, Windows, Linux, or in your browser.",
+        "Sign up now")
+
     override func setUpWithError() throws {
         app.launchArguments = ["enable-testing"]
-        continueAfterFailure = true
+        continueAfterFailure = false
 
         app.launch()
-        let logoutResult = attemptLogOut()
-        print("App logout: " + String(logoutResult))
-        app.launch()
-
+        let _ = attemptLogOut()
         EmailLogin.open()
         EmailLogin.logIn(email: testDataExistingEmail, password: testDataExistingPassword)
+
+        AllNotes.waitForLoad()
+        AllNotes.clearAllNotes()
+        Trash.empty()
+        AllNotes.open()
     }
 
     override func tearDownWithError() throws {
@@ -128,8 +137,6 @@ class SimplenoteUISmokeTestsNoteEditor: XCTestCase {
     }
 
     func testCanPreviewMarkdownBySwiping() throws {
-        let editorText = "[Simplenote](https://simplenote.com/)"
-        let previewText = "Simplenote"
 
         // Step 1
         AllNotes.addNoteTap()
@@ -137,18 +144,16 @@ class SimplenoteUISmokeTestsNoteEditor: XCTestCase {
 
         // Step 2
         NoteEditor.markdownEnable()
-        NoteEditor.clearAndEnterText(enteredValue: editorText)
-        NoteEditorAssert.editorText(text: editorText)
+        NoteEditor.clearAndEnterText(enteredValue: complexLinkRawText)
+        NoteEditorAssert.editorText(text: complexLinkRawText)
 
         // Step 3
         NoteEditor.swipeToPreview()
-        NoteEditorAssert.previewShown()
-        NoteEditorAssert.previewText(text: previewText)
+        PreviewAssert.previewShown()
+        PreviewAssert.previewText(text: complexLinkPreviewText)
     }
 
     func testCanFlipToEditMode() throws {
-        let editorText = "[Simplenote](https://simplenote.com/)"
-        let previewText = "Simplenote"
 
         // Step 1
         AllNotes.addNoteTap()
@@ -156,18 +161,18 @@ class SimplenoteUISmokeTestsNoteEditor: XCTestCase {
 
         // Step 2
         NoteEditor.markdownEnable()
-        NoteEditor.clearAndEnterText(enteredValue: editorText)
-        NoteEditorAssert.editorText(text: editorText)
+        NoteEditor.clearAndEnterText(enteredValue: complexLinkRawText)
+        NoteEditorAssert.editorText(text: complexLinkRawText)
 
         // Step 3
         NoteEditor.swipeToPreview()
-        NoteEditorAssert.previewShown()
-        NoteEditorAssert.previewText(text: previewText)
+        PreviewAssert.previewShown()
+        PreviewAssert.previewText(text: complexLinkPreviewText)
 
         // Step 4
-        NoteEditor.leavePreviewViaBackButton()
+        Preview.leavePreviewViaBackButton()
         NoteEditorAssert.editorShown()
-        NoteEditorAssert.editorText(text: editorText)
+        NoteEditorAssert.editorText(text: complexLinkRawText)
     }
 
     func testUndoUndoesTheLastEdit() throws {
@@ -185,26 +190,92 @@ class SimplenoteUISmokeTestsNoteEditor: XCTestCase {
         NoteEditor.undo()
         NoteEditorAssert.editorText(text: "ABC")
     }
+
+    func testAddedURLIsLinkified() throws {
+
+        // Step 1
+        AllNotes.addNoteTap()
+        NoteEditorAssert.editorShown();
+
+        // Step 2
+        NoteEditor.markdownEnable()
+        NoteEditor.clearAndEnterText(enteredValue: usualLinkText)
+        NoteEditorAssert.editorText(text: usualLinkText)
+
+        // Step 3
+        NoteEditor.leaveEditor()
+        AllNotesAssert.noteExists(noteName: usualLinkText)
+
+        // Step 4
+        AllNotes.openNote(noteName: usualLinkText)
+        NoteEditorAssert.linkifiedURL(containerText: usualLinkText, linkifiedText: usualLinkText)
+    }
+
+    func testLongTappingOnLinkOpensLinkInNewWindow() throws {
+
+        // Step 1
+        AllNotes.addNoteTap()
+        NoteEditorAssert.editorShown();
+
+        // Step 2
+        NoteEditor.markdownEnable()
+        NoteEditor.clearAndEnterText(enteredValue: usualLinkText)
+        NoteEditorAssert.editorText(text: usualLinkText)
+
+        // Step 3
+        NoteEditor.leaveEditor()
+        AllNotesAssert.noteExists(noteName: usualLinkText)
+
+        // Step 4
+        AllNotes.openNote(noteName: usualLinkText)
+        //NoteEditorAssert.editorText(text: usualURL)
+        NoteEditorAssert.linkifiedURL(containerText: usualLinkText, linkifiedText: usualLinkText)
+
+        // Step 5
+        NoteEditor.pressLink(containerText: usualLinkText, linkifiedText: usualLinkText)
+        for text in webViewTexts {
+            WebViewAssert.textShownOnScreen(textToFind: text)
+        }
+    }
+
+    func testTappingOnLinkInPreviewOpensLinkInNewWindow() throws {
+
+        // Step 1
+        AllNotes.addNoteTap()
+        NoteEditorAssert.editorShown();
+
+        // Step 2
+        NoteEditor.markdownEnable()
+        NoteEditor.clearAndEnterText(enteredValue: usualLinkText)
+        NoteEditorAssert.editorText(text: usualLinkText)
+
+        // Step 3
+        NoteEditor.swipeToPreview()
+        PreviewAssert.linkShown(linkText: usualLinkText)
+
+        // Step 4
+        Preview.tapLink(linkText: usualLinkText)
+        for text in webViewTexts {
+            WebViewAssert.textShownOnScreen(textToFind: text)
+        }
+    }
 }
 
 class SimplenoteUISmokeTestsTrash: XCTestCase {
 
     override func setUpWithError() throws {
         app.launchArguments = ["enable-testing"]
-        continueAfterFailure = true
+        continueAfterFailure = false
 
         app.launch()
-        let logoutResult = attemptLogOut()
-        print("App logout: " + String(logoutResult))
-        app.launch()
-
+        let _ = attemptLogOut()
         EmailLogin.open()
         EmailLogin.logIn(email: testDataExistingEmail, password: testDataExistingPassword)
 
         AllNotes.waitForLoad()
-        AllNotes.createNoteAndLeaveEditor(noteName: "temp")
         AllNotes.clearAllNotes()
         Trash.empty()
+        AllNotes.open()
     }
 
     override func tearDownWithError() throws {

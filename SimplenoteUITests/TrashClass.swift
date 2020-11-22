@@ -26,7 +26,8 @@ class Trash {
 
     class func empty() {
         Trash.open()
-        let emptyTrashButton = app.navigationBars.firstMatch.buttons[uidButton_Trash_EmptyTrash]
+        let emptyTrashButton = app.buttons[uidButton_Trash_EmptyTrash]
+        //let emptyTrashButton = app.navigationBars.firstMatch.buttons[uidButton_Trash_EmptyTrash]
 
         if emptyTrashButton.isEnabled {
             emptyTrashButton.tap()

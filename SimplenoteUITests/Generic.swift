@@ -53,6 +53,24 @@ class Table {
 
     class func trashNote(noteName: String) {
         app.tables.cells[noteName].swipeLeft()
+        sleep(1)
         app.tables.cells[noteName].buttons[uidButton_NoteCell_Trash].tap()
+    }
+}
+
+class WebView {
+
+    class func tapDone() {
+        app.buttons[uidButton_Done].tap()
+    }
+}
+
+class WebViewAssert {
+
+    class func textShownOnScreen(textToFind: String) {
+        let textPredicate = NSPredicate(format: "label MATCHES '" + textToFind + "'")
+        let staticText = app.staticTexts.element(matching: textPredicate)
+
+        XCTAssertTrue(staticText.exists, "\"" + textToFind + textNotFoundInWebView)
     }
 }

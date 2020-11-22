@@ -104,6 +104,7 @@
 		46A3C9BF17DFA81A002865AE /* Foundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = E29ADD3B17848E8500E55842 /* Foundation.framework */; };
 		46A3C9C217DFA81A002865AE /* InfoPlist.strings in Resources */ = {isa = PBXBuildFile; fileRef = E29ADD4417848E8500E55842 /* InfoPlist.strings */; };
 		46A3C9C317DFA81A002865AE /* Images.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = E29ADD4D17848E8500E55842 /* Images.xcassets */; };
+		711231F1256AB2E900EE82F1 /* PreviewClass.swift in Sources */ = {isa = PBXBuildFile; fileRef = 711231F0256AB2E900EE82F1 /* PreviewClass.swift */; };
 		715D9F5D2564145000925869 /* SimplenoteUITests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 715D9F5C2564145000925869 /* SimplenoteUITests.swift */; };
 		715D9F7F2564810B00925869 /* UIDs.swift in Sources */ = {isa = PBXBuildFile; fileRef = 715D9F7E2564810B00925869 /* UIDs.swift */; };
 		715D9FF22565D62700925869 /* XCTest+Extensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = 715D9FF12565D62700925869 /* XCTest+Extensions.swift */; };
@@ -515,6 +516,7 @@
 		697B9622931545E466B5E186 /* Pods-Automattic-SimplenoteShare.distribution internal.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Automattic-SimplenoteShare.distribution internal.xcconfig"; path = "Pods/Target Support Files/Pods-Automattic-SimplenoteShare/Pods-Automattic-SimplenoteShare.distribution internal.xcconfig"; sourceTree = "<group>"; };
 		6AE4CF60906DA6D08F64E5B3 /* Pods-Automattic-Simplenote.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Automattic-Simplenote.release.xcconfig"; path = "Pods/Target Support Files/Pods-Automattic-Simplenote/Pods-Automattic-Simplenote.release.xcconfig"; sourceTree = "<group>"; };
 		6BCBD402CC18FF32DD97B404 /* Pods-Automattic-Simplenote.distribution appstore.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Automattic-Simplenote.distribution appstore.xcconfig"; path = "Pods/Target Support Files/Pods-Automattic-Simplenote/Pods-Automattic-Simplenote.distribution appstore.xcconfig"; sourceTree = "<group>"; };
+		711231F0256AB2E900EE82F1 /* PreviewClass.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PreviewClass.swift; sourceTree = "<group>"; };
 		715D9F5A2564145000925869 /* SimplenoteUITests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = SimplenoteUITests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		715D9F5C2564145000925869 /* SimplenoteUITests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SimplenoteUITests.swift; sourceTree = "<group>"; };
 		715D9F5E2564145000925869 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
@@ -1103,6 +1105,7 @@
 				715D9FF12565D62700925869 /* XCTest+Extensions.swift */,
 				716120FE2567020300972901 /* Playground.swift */,
 				7161210E2567052D00972901 /* Generic.swift */,
+				711231F0256AB2E900EE82F1 /* PreviewClass.swift */,
 			);
 			path = SimplenoteUITests;
 			sourceTree = "<group>";
@@ -2580,6 +2583,7 @@
 			files = (
 				715D9F7F2564810B00925869 /* UIDs.swift in Sources */,
 				716120E42567011F00972901 /* NoteEditorClass.swift in Sources */,
+				711231F1256AB2E900EE82F1 /* PreviewClass.swift in Sources */,
 				716120FF2567020300972901 /* Playground.swift in Sources */,
 				715D9F5D2564145000925869 /* SimplenoteUITests.swift in Sources */,
 				716120D22566D71200972901 /* AllNotesClass.swift in Sources */,
