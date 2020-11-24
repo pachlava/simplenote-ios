@@ -9,67 +9,51 @@
 import XCTest
 
 /*
-override func setUpWithError() throws {
-    app.launchArguments = ["enable-testing"]
-    continueAfterFailure = true
+ override func setUpWithError() throws {
+     app.launchArguments = ["enable-testing"]
+     continueAfterFailure = true
 
-    app.launch()
-    let logoutResult = attemptLogOut()
-    print("App logout: " + String(logoutResult))
-    app.launch()
+     app.launch()
+     let _ = attemptLogOut()
+     EmailLogin.open()
+     EmailLogin.logIn(email: testDataExistingEmail, password: testDataExistingPassword)
 
-    EmailLogin.open()
-    EmailLogin.logIn(email: testDataExistingEmail, password: testDataExistingPassword)
+     AllNotes.waitForLoad()
+     AllNotes.clearAllNotes()
+     Trash.empty()
+     AllNotes.open()
+ }
+*/
 
-    AllNotes.waitForLoad()
-    AllNotes.createNoteAndLeaveEditor(noteName: "temp")
-    AllNotes.clearAllNotes()
-    Trash.empty()
+/*
+let switchesNum = app.descendants(matching: .switch).count
+for index in 0...switchesNum - 1 {
+
+    let box = app.descendants(matching: .switch).element(boundBy: index)
+
+    print("========================================")
+    print("ID:" + box.identifier)
+    print("HITTABLE:" + String(box.isHittable))
+    print("ENABLED:" + String(box.isEnabled))
+    print("EXISTS:" + String(box.exists))
+    print("TITLE:" + box.title)
+    print("label:" + box.label)
+    print("description:" + box.description)
+
+    print(box.frame.height)
+    print(box.frame.width)
+    print(box.frame.minX)
+    print(box.frame.minY)
 }
 */
 
 /*
-override func setUpWithError() throws {
-    app.launchArguments = ["enable-testing"]
-    continueAfterFailure = true
+let allElsCount = app.descendants(matching: .any).count
 
-    app.launch()
-    let logoutResult = attemptLogOut()
-    print("App logout: " + String(logoutResult))
-    app.launch()
-
-    EmailLogin.open()
-    EmailLogin.logIn(email: testDataExistingEmail, password: testDataExistingPassword)
+for index in 0...allElsCount - 1
+{
+    let el = app.descendants(matching: .any).element(boundBy: index)
+    print(el.description)
+    print(el.label)
 }
-*/
-
-/*
-print("========================================")
-print("ID:" + staticText.identifier)
-print("HITTABLE:" + String(staticText.isHittable))
-print("ENABLED:" + String(staticText.isEnabled))
-print("EXISTS:" + String(staticText.exists))
-print("TITLE:" + staticText.title)
-print("label:" + staticText.label)
-print("description:" + staticText.description)
-
-print(staticText.frame.height)
-print(staticText.frame.width)
-print(staticText.frame.minX)
-print(staticText.frame.minY)
-*/
-
-
-/*
-        let staticTextsNum = app.descendants(matching: .staticText).count
-        var isTextFound: Bool = false
-
-        for index in 0...staticTextsNum - 1 {
-            let staticText = app.descendants(matching: .staticText).element(boundBy: index)
-
-            if staticText.label == textToFind {
-                isTextFound = true
-                break
-            }
-        }
 */

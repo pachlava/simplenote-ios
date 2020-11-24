@@ -28,7 +28,8 @@ class NoteEditor {
     }
 
     class func swipeToPreview() {
-        app.textViews.element.swipeLeft()
+        app.textViews.firstMatch.swipeLeft()
+        sleep(1)
     }
 
     class func leaveEditor() {
@@ -85,7 +86,14 @@ class NoteEditorAssert {
         XCTAssertTrue(allNotesNavBar.buttons[uidButton_NoteEditor_Menu].waitForExistence(timeout: minLoadTimeout), uidButton_NoteEditor_Menu + buttonNotFound)
     }
 
-    class func editorText(text: String) {
-        XCTAssertEqual(text, NoteEditor.getEditorText(), "Note Editor text" + notExpectedEnding);
+    class func wholeTextShown(text: String) {
+        XCTAssertEqual(text, NoteEditor.getEditorText(), "Note Editor text" + notExpectedEnding)
+    }
+
+    class func substringShown(text: String) {
+        let textPredicate = NSPredicate(format: "label MATCHES '" + text + "'")
+        let textView = app.textViews.element(matching: textPredicate)
+
+        XCTAssertTrue(textView.exists, "\"" + text + textNotFoundInEditor)
     }
 }

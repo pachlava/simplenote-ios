@@ -22,7 +22,7 @@ class SimplenoteUISmokeTestsLogin: XCTestCase {
 
     override func setUpWithError() throws {
         app.launchArguments = ["enable-testing"]
-        continueAfterFailure = false
+        continueAfterFailure = true
         app.launch()
         let _ = attemptLogOut()
     }
@@ -117,16 +117,19 @@ class SimplenoteUISmokeTestsNoteEditor: XCTestCase {
         "All your notes, synced on all your devices. Get Simplenote now for iOS, Android, Mac, Windows, Linux, or in your browser.",
         "Sign up now")
 
-    override func setUpWithError() throws {
+    override class func setUp() {
         app.launchArguments = ["enable-testing"]
-        continueAfterFailure = false
-
         app.launch()
         let _ = attemptLogOut()
         EmailLogin.open()
         EmailLogin.logIn(email: testDataExistingEmail, password: testDataExistingPassword)
-
         AllNotes.waitForLoad()
+    }
+
+    override func setUpWithError() throws {
+        continueAfterFailure = true
+        app.launch()
+
         AllNotes.clearAllNotes()
         Trash.empty()
         AllNotes.open()
@@ -145,12 +148,12 @@ class SimplenoteUISmokeTestsNoteEditor: XCTestCase {
         // Step 2
         NoteEditor.markdownEnable()
         NoteEditor.clearAndEnterText(enteredValue: complexLinkRawText)
-        NoteEditorAssert.editorText(text: complexLinkRawText)
+        NoteEditorAssert.wholeTextShown(text: complexLinkRawText)
 
         // Step 3
         NoteEditor.swipeToPreview()
         PreviewAssert.previewShown()
-        PreviewAssert.previewText(text: complexLinkPreviewText)
+        PreviewAssert.wholeTextShown(text: complexLinkPreviewText)
     }
 
     func testCanFlipToEditMode() throws {
@@ -162,17 +165,17 @@ class SimplenoteUISmokeTestsNoteEditor: XCTestCase {
         // Step 2
         NoteEditor.markdownEnable()
         NoteEditor.clearAndEnterText(enteredValue: complexLinkRawText)
-        NoteEditorAssert.editorText(text: complexLinkRawText)
+        NoteEditorAssert.wholeTextShown(text: complexLinkRawText)
 
         // Step 3
         NoteEditor.swipeToPreview()
         PreviewAssert.previewShown()
-        PreviewAssert.previewText(text: complexLinkPreviewText)
+        PreviewAssert.wholeTextShown(text: complexLinkPreviewText)
 
         // Step 4
         Preview.leavePreviewViaBackButton()
         NoteEditorAssert.editorShown()
-        NoteEditorAssert.editorText(text: complexLinkRawText)
+        NoteEditorAssert.wholeTextShown(text: complexLinkRawText)
     }
 
     func testUndoUndoesTheLastEdit() throws {
@@ -184,11 +187,11 @@ class SimplenoteUISmokeTestsNoteEditor: XCTestCase {
 
         // Step 2
         NoteEditor.clearAndEnterText(enteredValue: editorText)
-        NoteEditorAssert.editorText(text: editorText)
+        NoteEditorAssert.wholeTextShown(text: editorText)
 
         // Step 3
         NoteEditor.undo()
-        NoteEditorAssert.editorText(text: "ABC")
+        NoteEditorAssert.wholeTextShown(text: "")
     }
 
     func testAddedURLIsLinkified() throws {
@@ -200,7 +203,7 @@ class SimplenoteUISmokeTestsNoteEditor: XCTestCase {
         // Step 2
         NoteEditor.markdownEnable()
         NoteEditor.clearAndEnterText(enteredValue: usualLinkText)
-        NoteEditorAssert.editorText(text: usualLinkText)
+        NoteEditorAssert.wholeTextShown(text: usualLinkText)
 
         // Step 3
         NoteEditor.leaveEditor()
@@ -220,7 +223,7 @@ class SimplenoteUISmokeTestsNoteEditor: XCTestCase {
         // Step 2
         NoteEditor.markdownEnable()
         NoteEditor.clearAndEnterText(enteredValue: usualLinkText)
-        NoteEditorAssert.editorText(text: usualLinkText)
+        NoteEditorAssert.wholeTextShown(text: usualLinkText)
 
         // Step 3
         NoteEditor.leaveEditor()
@@ -247,7 +250,7 @@ class SimplenoteUISmokeTestsNoteEditor: XCTestCase {
         // Step 2
         NoteEditor.markdownEnable()
         NoteEditor.clearAndEnterText(enteredValue: usualLinkText)
-        NoteEditorAssert.editorText(text: usualLinkText)
+        NoteEditorAssert.wholeTextShown(text: usualLinkText)
 
         // Step 3
         NoteEditor.swipeToPreview()
@@ -259,19 +262,74 @@ class SimplenoteUISmokeTestsNoteEditor: XCTestCase {
             WebViewAssert.textShownOnScreen(textToFind: text)
         }
     }
+
+    func testCreateCheckedItem() throws {
+        let checklistText = "Checked Item"
+        let completeText = "- [x]" + checklistText
+
+        // Step 1
+        AllNotes.addNoteTap()
+        NoteEditorAssert.editorShown();
+
+        // Step 2
+        NoteEditor.markdownEnable()
+        NoteEditor.clearAndEnterText(enteredValue: completeText)
+
+        // Step 3
+        NoteEditor.leaveEditor()
+        AllNotesAssert.noteExists(noteName: completeText)
+
+        // Step 4
+        AllNotes.openNote(noteName: completeText)
+        NoteEditorAssert.substringShown(text: checklistText)
+
+        // Step 5
+        NoteEditor.swipeToPreview()
+        PreviewAssert.substringShown(text: checklistText)
+        PreviewAssert.boxesStates(expectedCheckedBoxesNumber: 1, expectedEmptyBoxesNumber: 0)
+    }
+
+    func testCreateUncheckedItem() throws {
+        let checklistText = "Unchecked Item"
+        let completeText = "- [ ]" + checklistText
+
+        // Step 1
+        AllNotes.addNoteTap()
+        NoteEditorAssert.editorShown();
+
+        // Step 2
+        NoteEditor.markdownEnable()
+        NoteEditor.clearAndEnterText(enteredValue: completeText)
+
+        // Step 3
+        NoteEditor.leaveEditor()
+        AllNotesAssert.noteExists(noteName: completeText)
+
+        // Step 4
+        AllNotes.openNote(noteName: completeText)
+        NoteEditorAssert.substringShown(text: checklistText)
+
+        // Step 5
+        NoteEditor.swipeToPreview()
+        PreviewAssert.substringShown(text: checklistText)
+        PreviewAssert.boxesStates(expectedCheckedBoxesNumber: 0, expectedEmptyBoxesNumber: 1)
+    }
 }
 
 class SimplenoteUISmokeTestsTrash: XCTestCase {
 
-    override func setUpWithError() throws {
+    override class func setUp() {
         app.launchArguments = ["enable-testing"]
-        continueAfterFailure = false
-
         app.launch()
         let _ = attemptLogOut()
         EmailLogin.open()
         EmailLogin.logIn(email: testDataExistingEmail, password: testDataExistingPassword)
+        AllNotes.waitForLoad()
+    }
 
+    override func setUpWithError() throws {
+        continueAfterFailure = true
+        app.launch()
         AllNotes.waitForLoad()
         AllNotes.clearAllNotes()
         Trash.empty()

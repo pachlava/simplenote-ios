@@ -66,11 +66,8 @@ class AllNotes {
 
     class func waitForLoad() {
         let allNotesNavBar = app.navigationBars[uidNavBar_AllNotes]
-
-        sleep(5)
-
+        sleep(4)
         while allNotesNavBar.staticTexts[uidText_AllNotes_InProgress].exists {
-
         }
     }
 }
@@ -78,7 +75,7 @@ class AllNotes {
 class AllNotesAssert {
 
     class func noteExists(noteName: String) {
-        XCTAssertTrue(app.tables.cells[noteName].exists, noteName + noteNotFoundInAllNotes)
+        XCTAssertTrue(app.tables.cells[noteName].exists, "\"" + noteName + noteNotFoundInAllNotes)
     }
 
     class func noteAbsent(noteName: String) {

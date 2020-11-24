@@ -26,7 +26,6 @@ class Preview {
     }
 }
 
-
 class PreviewAssert {
 
     class func linkShown(linkText: String) {
@@ -44,7 +43,41 @@ class PreviewAssert {
         XCTAssertTrue(previewNavBar.staticTexts[uidText_NoteEditor_Preview].waitForExistence(timeout: minLoadTimeout), uidText_NoteEditor_Preview + labelNotFound)
     }
 
-    class func previewText(text: String) {
+    class func wholeTextShown(text: String) {
         XCTAssertEqual(text, Preview.getText(), "Preview text" + notExpectedEnding);
+    }
+
+    class func substringShown(text: String) {
+        let textPredicate = NSPredicate(format: "label MATCHES '" + text + "'")
+        let staticText = app.staticTexts.element(matching: textPredicate)
+
+        XCTAssertTrue(staticText.exists, "\"" + text + textNotFoundInPreview)
+    }
+
+    class func boxesTotalNumber(expectedSwitchesNumber: Int) {
+        XCTAssertEqual(expectedSwitchesNumber, app.switches.count, numberOfBoxesInPreviewNotExpected)
+    }
+
+    class func boxesStates(expectedCheckedBoxesNumber: Int, expectedEmptyBoxesNumber: Int) {
+        let boxesCount = app.switches.count
+        var checkedBoxesNumber: Int = 0
+        var emptyBoxesNumber: Int = 0
+
+        print("Number of boxes found: " + String(boxesCount))
+
+        for index in 0...boxesCount - 1 {
+            let box = app.descendants(matching: .switch).element(boundBy: index)
+            print("Current box debug description: " + box.value.debugDescription)
+
+            if box.value.debugDescription == "Optional(1)" {
+                checkedBoxesNumber += 1
+            } else if box.value.debugDescription == "Optional(0)" {
+                emptyBoxesNumber += 1
+            }
+        }
+        
+        XCTAssertEqual(expectedCheckedBoxesNumber + expectedEmptyBoxesNumber, boxesCount, numberOfBoxesInPreviewNotExpected)
+        XCTAssertEqual(expectedCheckedBoxesNumber, checkedBoxesNumber, numberOfCheckedBoxesInPreviewNotExpected)
+        XCTAssertEqual(expectedEmptyBoxesNumber, emptyBoxesNumber, numberOfEmptyBoxesInPreviewNotExpected)
     }
 }
