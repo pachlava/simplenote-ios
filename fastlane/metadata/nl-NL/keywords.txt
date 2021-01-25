@@ -1,1 +1,0 @@
-simplenote,aantekening,maken,synchroniseren,delen,markdown,tag,takenlijst,vergrendel,cloud,schrijven
