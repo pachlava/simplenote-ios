@@ -1,0 +1,3 @@
+- Hemos actualizado los marcadores de posición con estados vacíos
+- Acciones rápidas en la pantalla de inicio
+- Hemos ajustado las métricas de la pantalla Acerca de

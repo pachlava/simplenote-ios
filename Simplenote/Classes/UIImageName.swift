@@ -9,6 +9,7 @@ enum UIImageName: Int, CaseIterable {
     case add
     case allNotes
     case archive
+    case arrowTopRight
     case checklist
     case checkmarkChecked
     case checkmarkUnchecked
@@ -27,6 +28,7 @@ enum UIImageName: Int, CaseIterable {
     case history
     case info
     case link
+    case mail
     case menu
     case newNote
     case note
@@ -52,6 +54,7 @@ enum UIImageName: Int, CaseIterable {
     case untagged
     case visibilityOn
     case visibilityOff
+    case warning
 }
 
 
@@ -69,6 +72,8 @@ extension UIImageName {
             return "icon_allnotes"
         case .archive:
             return "icon_archive"
+        case .arrowTopRight:
+            return "icon_arrow_top_right"
         case .checklist:
             return "icon_checklist"
         case .checkmarkChecked:
@@ -105,6 +110,8 @@ extension UIImageName {
             return "icon_info"
         case .link:
             return "icon_link"
+        case .mail:
+            return "icon_mail"
         case .menu:
             return "icon_menu"
         case .newNote:
@@ -155,6 +162,8 @@ extension UIImageName {
             return "icon_visibility_on"
         case .visibilityOff:
             return "icon_visibility_off"
+        case .warning:
+            return "icon_warning"
         }
     }
 

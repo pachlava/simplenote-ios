@@ -36,6 +36,7 @@
 + (void)trackEditorCollaboratorsAccessed;
 + (void)trackEditorCopiedInternalLink;
 + (void)trackEditorCopiedPublicLink;
++ (void)trackEditorInterlinkAutocompleteViewed;
 
 #pragma mark - Note List
 + (void)trackListNoteCreated;
@@ -93,5 +94,10 @@
 + (void)trackWPCCButtonPressed;
 + (void)trackWPCCLoginSucceeded;
 + (void)trackWPCCLoginFailed;
+
+#pragma mark -
+
++ (void)trackAutomatticEventWithName:(NSString *)name
+                          properties:(NSDictionary *)properties;
 
 @end

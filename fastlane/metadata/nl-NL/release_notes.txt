@@ -1,0 +1,3 @@
+- Placeholders voor lege statussen zijn bijgewerkt
+- Snelle acties op het startscherm
+- Statistieken op het scherm 'Over' aangepast

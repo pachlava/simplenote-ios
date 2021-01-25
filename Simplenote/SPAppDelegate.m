@@ -21,7 +21,6 @@
 #import "SPRatingsHelper.h"
 #import "WPAuthHandler.h"
 
-#import "DTPinLockController.h"
 #import "SPTracker.h"
 
 @import Contacts;
@@ -39,9 +38,8 @@
 #pragma mark Private Properties
 #pragma mark ================================================================================
 
-@interface SPAppDelegate () <SPBucketDelegate, PinLockDelegate>
+@interface SPAppDelegate ()
 
-@property (strong, nonatomic) Simperium                     *simperium;
 @property (strong, nonatomic) NSManagedObjectContext        *managedObjectContext;
 @property (strong, nonatomic) NSManagedObjectModel          *managedObjectModel;
 @property (strong, nonatomic) NSPersistentStoreCoordinator  *persistentStoreCoordinator;
@@ -65,34 +63,6 @@
 #pragma mark ================================================================================
 #pragma mark Frameworks Setup
 #pragma mark ================================================================================
-
-- (void)setupSimperium
-{
-	self.simperium = [[Simperium alloc] initWithModel:self.managedObjectModel context:self.managedObjectContext coordinator:self.persistentStoreCoordinator];
-		  
-#if USE_VERBOSE_LOGGING
-    [_simperium setVerboseLoggingEnabled:YES];
-    NSLog(@"verbose logging enabled");
-#else
-    [_simperium setVerboseLoggingEnabled:NO];
-#endif
-    
-    _simperium.authenticationViewControllerClass    = [SPOnboardingViewController class];
-    _simperium.authenticator.providerString         = @"simplenote.com";
-	
-
-    [_simperium setAuthenticationShouldBeEmbeddedInNavigationController:YES];
-    [_simperium setAllBucketDelegates:self];
-    [_simperium setDelegate:self];
-    
-    NSArray *buckets = @[NSStringFromClass([Note class]),
-                         NSStringFromClass([Tag class]),
-                         NSStringFromClass([Settings class])];
-    
-    for (NSString *bucketName in buckets) {
-        [_simperium bucketForName:bucketName].notifyWhileIndexing = YES;
-    }
-}
 
 - (void)authenticateSimperium
 {
@@ -193,7 +163,7 @@
     
     // Check to see if first time user
     if ([self isFirstLaunch]) {        
-        [self removePin];
+        [[SPPinLockManager shared] removePin];
         [self createWelcomeNoteAfterDelay];
         [self markFirstLaunch];
     } else {
@@ -208,26 +178,24 @@
 
 - (void)applicationDidBecomeActive:(UIApplication *)application
 {
-    [self ensurePinlockIsDismissed];
     [SPTracker trackApplicationOpened];
 }
 
 - (void)applicationDidEnterBackground:(UIApplication *)application
 {
     [SPTracker trackApplicationClosed];
+
+    // For the passcode lock, store the current clock time for comparison when returning to the app
+    if ([self.window isKeyWindow]) {
+        [[SPPinLockManager shared] storeLastUsedTime];
+    }
+
+    [self showPasscodeLockIfNecessary];
 }
 
-- (void)ensurePinlockIsDismissed
+- (void)applicationWillEnterForeground:(UIApplication *)application
 {
-    // Dismiss the pin lock window if the user has returned to the app before their preferred timeout length
-    if (self.pinLockWindow != nil
-        && [self.pinLockWindow isKeyWindow]
-        && [SPPinLockManager shouldBypassPinLock]) {
-        // Bring the main window to the front, which 'dismisses' the pin lock window
-        [self.window makeKeyAndVisible];
-        [self.pinLockWindow removeFromSuperview];
-        self.pinLockWindow = nil;
-    }
+    [self dismissPasscodeLockIfPossible];
 }
 
 - (BOOL)application:(UIApplication *)application continueUserActivity:(NSUserActivity *)userActivity restorationHandler:(void (^)(NSArray<id<UIUserActivityRestoring>> * _Nullable))restorationHandler
@@ -242,12 +210,6 @@
 
 - (void)applicationWillResignActive:(UIApplication *)application
 {
-    // For the passcode lock, store the current clock time for comparison when returning to the app
-    if ([self passcodeLockIsEnabled] && [self.window isKeyWindow]) {
-        [SPPinLockManager storeLastUsedTime];
-    }
-    
-    [self showPasscodeLockIfNecessary];
     UIViewController *viewController = self.window.rootViewController;
     [viewController.view setNeedsLayout];
     
@@ -465,7 +427,7 @@
             [[Options shared] reset];
             
 			// remove the pin lock
-			[self removePin];
+            [[SPPinLockManager shared] removePin];
 			
 			// hide sidebar of notelist
             [self.sidebarViewController hideSidebarWithAnimation:NO];
@@ -500,7 +462,7 @@
 
 - (void)bucket:(SPBucket *)bucket didChangeObjectForKey:(NSString *)key forChangeType:(SPBucketChangeType)change memberNames:(NSArray *)memberNames
 {
-    if ([bucket.name isEqualToString:NSStringFromClass([Note class])]) {
+    if ([bucket isEqual:[_simperium notesBucket]]) {
         // Note change
         switch (change) {
             case SPBucketChangeTypeUpdate:
@@ -529,7 +491,7 @@
             default:
                 break;
         }
-    } else if ([bucket.name isEqualToString:NSStringFromClass([Tag class])]) {
+    } else if ([bucket isEqual:[_simperium tagsBucket]]) {
         // Tag deleted
         switch (change) {
             case SPBucketChangeTypeDelete:
@@ -543,14 +505,16 @@
             default:
                 break;
         }
-    } else if ([bucket.name isEqualToString:NSStringFromClass([Settings class])]) {
+    } else if ([bucket isEqual:[_simperium settingsBucket]]) {
         [[SPRatingsHelper sharedInstance] reloadSettings];
+    } else if ([bucket isEqual:[_simperium accountBucket]] && [key isEqualToString:SPCredentials.simperiumEmailVerificationObjectKey]) {
+        [_verificationController updateWith:[bucket objectForKey:key]];
     }
 }
 
 - (void)bucket:(SPBucket *)bucket willChangeObjectsForKeys:(NSSet *)keys
 {
-    if ([bucket.name isEqualToString:@"Note"]) {
+    if ([bucket isEqual:[_simperium notesBucket]]) {
         for (NSString *key in keys) {
             if ([key isEqualToString:self.noteEditorViewController.currentNote.simperiumKey]) {
                 [self.noteEditorViewController willReceiveNewContent];
@@ -561,23 +525,25 @@
 
 - (void)bucket:(SPBucket *)bucket didReceiveObjectForKey:(NSString *)key version:(NSString *)version data:(NSDictionary *)data
 {
-    if ([bucket.name isEqualToString:@"Note"]) {
+    if ([bucket isEqual:[_simperium notesBucket]]) {
         [self.versionsController didReceiveObjectForSimperiumKey:key version:[version integerValue] data:data];
     }
 }
 
 - (void)bucketWillStartIndexing:(SPBucket *)bucket
 {
-    if ([bucket.name isEqualToString:@"Note"]) {
+    if ([bucket isEqual:[_simperium notesBucket]]) {
         [_noteListViewController setWaitingForIndex:YES];
     }
 }
 
 - (void)bucketDidFinishIndexing:(SPBucket *)bucket
 {
-    if ([bucket.name isEqualToString:@"Note"]) {
+    if ([bucket isEqual:[_simperium notesBucket]]) {
         [_noteListViewController setWaitingForIndex:NO];
         [self indexSpotlightItems];
+    } else if ([bucket isEqual:[_simperium accountBucket]]) {
+        [_verificationController updateWith:[bucket objectForKey:SPCredentials.simperiumEmailVerificationObjectKey]];
     }
 }
 
@@ -627,6 +593,11 @@
 
 - (BOOL)application:(UIApplication *)app openURL:(NSURL *)url options:(NSDictionary<UIApplicationOpenURLOptionsKey,id> *)options
 {
+    if (!self.simperium.user.authenticated) {
+        [self performDotcomAuthenticationWithURL:url];
+        return YES;
+    }
+
     // URL: Open a Note!
     if ([self handleOpenNoteWithUrl:url]) {
         return YES;
@@ -662,107 +633,28 @@
         [_simperium save];
         
         [self presentNote:newNote];
-    } else if ([WPAuthHandler isWPAuthenticationUrl: url]) {
-        if (self.simperium.user.authenticated) {
-            // We're already signed in
-            [[NSNotificationCenter defaultCenter] postNotificationName:kSignInErrorNotificationName
-                                                                object:nil];
-            return NO;
-        }
-        
-        SPUser *newUser = [WPAuthHandler authorizeSimplenoteUserFromUrl:url forAppId:[SPCredentials simperiumAppID]];
-        if (newUser != nil) {
-            self.simperium.user = newUser;
-            [self.navigationController dismissViewControllerAnimated:YES completion:nil];
-            [self.simperium authenticationDidSucceedForUsername:newUser.email token:newUser.authToken];
-            
-            [SPTracker trackWPCCLoginSucceeded];
-        }
     }
     
     return YES;
 }
 
-#pragma mark ================================================================================
-#pragma mark Passcode Lock
-#pragma mark ================================================================================
-
-- (UIViewController*)topMostController
+- (void)performDotcomAuthenticationWithURL:(NSURL *)url
 {
-    UIViewController *topController = [UIApplication sharedApplication].keyWindow.rootViewController;
-    
-    while (topController.presentedViewController) {
-        topController = topController.presentedViewController;
-    }
-    
-    return topController;
-}
-
--(void)showPasscodeLockIfNecessary
-{
-    if (![self passcodeLockIsEnabled] || [self isPresentingPinLock] || [self isRequestingContactsPermission]) {
+    if (![WPAuthHandler isWPAuthenticationUrl:url]) {
         return;
-	}
-    
-    BOOL useBiometry = self.allowBiometryInsteadOfPin;
-    DTPinLockController *controller = [[DTPinLockController alloc] initWithMode:useBiometry ? PinLockControllerModeUnlockAllowTouchID :PinLockControllerModeUnlock];
-	controller.pinLockDelegate = self;
-	controller.pin = [self getPin];
-    controller.modalTransitionStyle = UIModalTransitionStyleCrossDissolve;
-	
-	// no animation to cover up app right away
-    self.pinLockWindow = [[UIWindow alloc] initWithFrame:[[UIScreen mainScreen] bounds]];
-    self.pinLockWindow.rootViewController = controller;
-    [self.pinLockWindow makeKeyAndVisible];
-	[controller fixLayout];
+    }
+
+    SPUser *user = [WPAuthHandler authorizeSimplenoteUserFromUrl:url forAppId:[SPCredentials simperiumAppID]];
+    if (user == nil) {
+        return;
+    }
+
+    self.simperium.user = user;
+    [self.navigationController dismissViewControllerAnimated:YES completion:nil];
+    [self.simperium authenticationDidSucceedForUsername:user.email token:user.authToken];
+
+    [SPTracker trackWPCCLoginSucceeded];
 }
-
-- (BOOL)passcodeLockIsEnabled {
-    NSString *pin = [self getPin];
-    
-    return pin != nil && pin.length != 0;
-}
-
-- (void)pinLockControllerDidFinishUnlocking
-{
-    [UIView animateWithDuration:0.3
-                     animations:^{ self.pinLockWindow.alpha = 0.0; }
-                     completion:^(BOOL finished) {
-                         [self.window makeKeyAndVisible];
-                         [self.pinLockWindow removeFromSuperview];
-                         self.pinLockWindow = nil;
-                     }];
-}
-
-- (BOOL)allowBiometryInsteadOfPin
-{
-    NSUserDefaults *userDefaults = [NSUserDefaults standardUserDefaults];
-    BOOL useTouchID = [userDefaults boolForKey:kSimplenoteUseBiometryKey];
-
-    return useTouchID;
-}
-
-- (void)setAllowBiometryInsteadOfPin:(BOOL)allowBiometryInsteadOfPin
-{
-    NSUserDefaults *userDefaults = [NSUserDefaults standardUserDefaults];
-    [userDefaults setBool:allowBiometryInsteadOfPin forKey:kSimplenoteUseBiometryKey];
-    [userDefaults synchronize];
-}
-
-- (BOOL)isPresentingPinLock
-{
-    return self.pinLockWindow && [self.pinLockWindow isKeyWindow];
-}
-
-- (BOOL)isRequestingContactsPermission
-{
-    NSArray *topChildren = self.topMostController.childViewControllers;
-    BOOL isShowingCollaborators = [topChildren count] > 0 && [topChildren[0] isKindOfClass:[SPAddCollaboratorsViewController class]];
-    BOOL isNotDeterminedAuth = [CNContactStore authorizationStatusForEntityType:CNEntityTypeContacts] == CNAuthorizationStatusNotDetermined;
-    
-    return isShowingCollaborators && isNotDeterminedAuth;
-}
-
 
 #pragma mark ================================================================================
 #pragma mark App Tracking

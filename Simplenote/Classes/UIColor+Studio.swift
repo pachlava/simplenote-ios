@@ -45,6 +45,11 @@ extension UIColor {
 extension UIColor {
 
     @objc
+    static var simplenoteBlue10Color: UIColor {
+        UIColor(studioColor: .spBlue10)
+    }
+
+    @objc
     static var simplenoteBlue30Color: UIColor {
         UIColor(studioColor: .spBlue30)
     }
@@ -364,5 +369,25 @@ extension UIColor {
     static var simplenoteEditorSearchHighlightSelectedColor: UIColor {
         UIColor(lightColor: .spBlue50,
                 darkColor: .spBlue50)
+    }
+
+    static var simplenoteLockScreenBackgroudColor: UIColor {
+        return UIColor(studioColor: .spBlue50)
+    }
+
+    static var simplenoteLockScreenButtonColor: UIColor {
+        return UIColor(studioColor: .spBlue40)
+    }
+
+    static var simplenoteLockScreenHighlightedButtonColor: UIColor {
+        return UIColor(studioColor: .spBlue20)
+    }
+
+    static var simplenoteLockScreenMessageColor: UIColor {
+        return UIColor(studioColor: .spBlue5)
+    }
+
+    static var simplenoteVerificationScreenBackgroundColor: UIColor {
+        return UIColor(lightColor: .white, darkColor: .darkGray2)
     }
 }

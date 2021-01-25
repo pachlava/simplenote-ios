@@ -1,0 +1,3 @@
+- Platzhalter für leere Bundesländer aktualisiert
+- Schnellaktionen auf der Startseite
+- Metriken des „Über“-Bildschirms angepasst
